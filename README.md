@@ -1,46 +1,77 @@
-# sipa-bob-sprint
+Full concept, open questions, and pre-sprint checklist (pre-kickoff):
+https://claude.ai/code/artifact/490f5db8-1f5e-4fa5-a244-281a5f414444
 
-**IBM Bob 2.0 Hackathon entry — prep stage.**
+# Bob Harness — IBM Bob 2.0 Hackathon
 
-Built for the [IBM Bob 2.0 Hackathon](https://lablab.ai/ai-hackathons/ibm-bob-2-hackathon)
-— a 48-hour live sprint, **25–27 September 2026**, $10,000 prize pool.
+Use case (from the official example list): **Intelligent code review and
+quality coach**. Bob does the review; this harness makes the review
+verifiable and diffable instead of a paragraph you have to trust on read.
 
-## Status: concept + checklist only
+## What it does
 
-No team on this one yet, and no hands-on access to IBM Bob until the
-Kick-Off Stream. There is deliberately no core code in this repo yet —
-writing an integration against an interface nobody on the team has seen
-would be guessing, not building.
+`bob_harness/` runs `bob run --format stream-json` headlessly and turns the
+stream into two artifacts:
 
-Full concept and the pre-sprint checklist:
-[docs/PLAN.md](docs/PLAN.md)
+1. **sipa-trace TraceLog** (`trace.jsonl`) — every tool call Bob makes
+   becomes a hash-chained, risk-classified `TraceCard`. Deterministic
+   rule-based risk classification (`sipa_trace.RiskClassifier`), not Bob
+   grading its own actions. Verifiable end to end: `sipa_trace.verify()`
+   walks the hash chain and confirms nothing in the log was altered after
+   the fact.
+2. **sipa-signal SignalCard** — Bob's own text explanation gets stripped of
+   hedging/filler before a human reads it. Deterministic pattern match, not
+   another model summarizing Bob's summary.
 
-## The concept, short version
+The tool→risk mapping (`bob_harness/risk_map.py`) is generic on purpose: it
+classifies tool *capability* (does it write/delete/touch the network/touch
+credentials), never the domain of the task Bob was given. Same classifier
+works whatever repo Bob is pointed at.
 
-IBM Bob is IBM's AI development partner — "your code meets your new AI dev
-partner" is the hackathon's own framing. The angle: don't just use Bob as a
-faster typist. Point the team's own governance tools —
-[sipa-trace](https://github.com/soulinpsyabstract/sipa-trace) (hash-chained,
-diffable audit cards) and
-[sipa-signal](https://github.com/soulinpsyabstract/sipa-signal) (strips
-hedging out of what a tool says about its own work) — at a real Bob session,
-live, for 48 hours.
+## Layout
 
-Not a bigger or trusted-by-default AI dev partner. A stricter loop watching
-whatever dev partner is in the loop — the same bet as everywhere else in
-SIPA OS.
+```
+bob_harness/
+  _pathsetup.py   — adds ../sipa-trace and ../sipa-signal to sys.path
+                    (both zero-dependency pure-Python — no separate install
+                    needed on the hackathon box)
+  risk_map.py     — classify_tool_call(tool_name, params) -> ActionProfile
+  runner.py       — run_bob_task(prompt, workspace, trace_log_path) -> BobRunResult
+tests/
+  test_risk_map.py — unit tests for the risk classifier, no live Bob calls
+run_demo.py       — real end-to-end demo: calls `bob run` for real (spends
+                    real Bobcoins), writes trace.jsonl, prints the SignalCard
+bob_sessions/     — Task Session Summary PNG screenshots go here, one per
+                    task, required for hackathon submission
+```
 
-## Before 25.09
+## Running it
 
-- Register for the Kick-Off Stream, confirm Bob access is live
-- Skim IBM's own Bob docs once access opens — no guessing at the interface first
-- If a team forms: one person on Bob-integration, one on trace/signal wiring
-- Have `sipa-trace` and `sipa-signal` both installable and demoed once before the clock starts
+Requires `bob` CLI installed and authenticated (see
+`PROJECT/PAYTON_HUBS/HUB_GOVERNANCE/HACKATHONS__ACTIVE__2026-09-21.md`
+section 8 for the headless API-key auth workaround — the SSO browser login
+hangs forever on a headless box).
 
-## Team
+```bash
+# unit tests, no Bob calls, no cost
+python3 -m pytest tests/ -v
 
-Aelin AquaSoul — team **SIPA_OS** on lablab.ai (open, no one else joined yet)
+# real end-to-end demo, spends real Bobcoins
+python3 run_demo.py /tmp/some_workspace
+```
 
-## License
+Verified live 2026-09-26: `bob run` on a sample `calc.py`, 1 tool call
+(`read_file`, correctly classified `RiskClass.NONE`), hash chain verified
+(`VerifyResult(ok=True, count=1, problems=[])`), Bob's review text passed
+through sipa-signal (classified `CLEAN`, 0% filler in this run — genuinely
+clean text, not a fabricated pass).
 
-Apache 2.0
+## Team tracks (see governance doc section 8 for full detail)
+
+- **Aelin** — this harness (Bob → sipa-trace → sipa-signal wiring)
+- **Benjamin** — security review track: point Bob's Agent mode at a
+  security review, classify findings via the risk_class scheme, document
+  adversarial cases (attempts to get Bob to wave through something risky)
+- **Abeeha** — findings aggregation track: use Bob's document understanding
+  to summarize trace/signal output into a simple stats report (counts by
+  risk category, noise stripped) — matches her stats background, no coding
+  experience required
