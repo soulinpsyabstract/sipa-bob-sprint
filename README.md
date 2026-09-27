@@ -46,10 +46,16 @@ bob_sessions/     — Task Session Summary PNG screenshots go here, one per
 
 ## Running it
 
-Requires `bob` CLI installed and authenticated (see
-`PROJECT/PAYTON_HUBS/HUB_GOVERNANCE/HACKATHONS__ACTIVE__2026-09-21.md`
-section 8 for the headless API-key auth workaround — the SSO browser login
-hangs forever on a headless box).
+Requires `bob` CLI installed and authenticated.
+
+On a normal machine with a browser, just use standard SSO login — it works
+fine. The API-key auth workaround (env vars `BOBSHELL_API_KEY`/`BOB_API_KEY`)
+is only needed on a headless server where the SSO flow hangs waiting for a
+browser that doesn't exist; if that's not your situation, ignore it. That
+workaround key is tied to a single hackathon account and isn't something to
+request from a teammate — each person needs their own hackathon-provisioned
+Bob account (see the official hackathon guide's account setup section) if
+their IDE isn't showing the `ibm-coding-challenge-uat` instance.
 
 ```bash
 # unit tests, no Bob calls, no cost
