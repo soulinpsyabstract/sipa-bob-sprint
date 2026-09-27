@@ -71,6 +71,17 @@ Verified live 2026-09-26: `bob run` on a sample `calc.py`, 1 tool call
 through sipa-signal (classified `CLEAN`, 0% filler in this run — genuinely
 clean text, not a fabricated pass).
 
+## Demo
+
+`demos/bob_harness_demo.gif` (raw recording: `demos/bob_harness_demo.cast`,
+replay with `asciinema play`) — a real, live terminal recording: the
+`risk_map` test suite passing, `sipa_trace.verify()` walking an actual
+hash-chained log, and `sipa_signal.extract()` stripping hedging language
+from an example sentence. This shows the verification tooling itself
+running live, not a screen recording of Bob's IDE (no GUI access was
+available on the device at hand at submission time) — the real Bob task
+run is documented as text in `bob_sessions/session_2026-09-26_confirmed_run.md`.
+
 ## Team tracks (see governance doc section 8 for full detail)
 
 - **Aelin** — this harness (Bob → sipa-trace → sipa-signal wiring)

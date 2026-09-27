@@ -1,0 +1,130 @@
+<title>Bob Submission Kit</title>
+<style>
+  :root {
+    --bg: #f7f5f2;
+    --panel: #ffffff;
+    --ink: #1c1917;
+    --dim: #6b645c;
+    --accent: #1c7a68;
+    --accent-bg: #e6f3ef;
+    --border: #e5e0d8;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+    --sans: 'Space Grotesk', -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14120f; --panel: #1c1a16; --ink: #f2ede6; --dim: #a89f92;
+      --accent: #35e2c4; --accent-bg: #1c2e2a; --border: #2c2822;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14120f; --panel: #1c1a16; --ink: #f2ede6; --dim: #a89f92;
+    --accent: #35e2c4; --accent-bg: #1c2e2a; --border: #2c2822;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); margin: 0 0 6px; }
+  .lede { color: var(--dim); margin: 0 0 36px; font-size: 1rem; }
+  .field { margin-bottom: 28px; }
+  .field-label {
+    font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--accent); margin-bottom: 8px; display: flex;
+    justify-content: space-between; align-items: center;
+  }
+  .box {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; font-size: 0.98rem; line-height: 1.6; white-space: pre-wrap;
+  }
+  .box p { margin: 0 0 12px; }
+  .box p:last-child { margin-bottom: 0; }
+  .copy-btn {
+    font-family: var(--mono); font-size: 0.72rem; background: var(--accent-bg);
+    color: var(--accent); border: none; border-radius: 6px; padding: 4px 10px;
+    cursor: pointer;
+  }
+  .copy-btn:active { opacity: 0.7; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .links a {
+    font-family: var(--mono); font-size: 0.85rem; color: var(--accent);
+    text-decoration: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; background: var(--panel);
+  }
+  .todo {
+    border: 1px dashed var(--dim); border-radius: 10px; padding: 16px 18px;
+    color: var(--dim); font-size: 0.92rem;
+  }
+  .todo strong { color: var(--ink); }
+  footer { color: var(--dim); font-size: 0.8rem; margin-top: 40px; }
+</style>
+
+<div class="wrap">
+  <h1>Bob Submission Kit</h1>
+  <p class="lede">Copy-paste blocks for the lablab.ai submission form. Everything here is ready to use as-is.</p>
+
+  <div class="field">
+    <div class="field-label">Project name <button class="copy-btn" data-copy="name">Copy</button></div>
+    <div class="box" id="name">Bob, Verified</div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Short description <button class="copy-btn" data-copy="short">Copy</button></div>
+    <div class="box" id="short">An audit layer for IBM Bob 2.0 that hash-chains every tool call it makes and strips filler from its written output &mdash; so a code review from Bob is something you can verify, not just something you're asked to trust.</div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Long description <button class="copy-btn" data-copy="long">Copy</button></div>
+    <div class="box" id="long">
+<p>Bob does the code review. This project asks the next question: how do you know it actually did what it says?</p>
+<p>AI coding agents are usually graded on whether their summary sounds right, not on whether it matches what happened on disk. For a review tool, that gap is the whole product failing at its one job &mdash; you end up trusting the reviewer's word about the review, with no way to check it.</p>
+<p>This harness wraps Bob's Agent mode with two small, zero-dependency Python libraries built for exactly this:</p>
+<p><strong>sipa-trace</strong> turns every tool call Bob makes into a hash-chained, risk-classified record. The classifier is deterministic and rule-based &mdash; it looks at tool capability (does this write, delete, touch the network, touch credentials), never at Bob's own judgment of its own action. An unrecognized tool falls through to the lowest risk tier by design, so it gets flagged for a human instead of silently waved through. <code>verify()</code> walks the whole chain afterward and confirms nothing was edited after the fact.</p>
+<p><strong>sipa-signal</strong> runs Bob's own written explanation through a deterministic filter before a human reads it, stripping hedging and filler language. It's pattern-based, not another model summarizing Bob's summary &mdash; a second LLM in that role would just relocate the trust problem.</p>
+<p>The tool&rarr;risk mapping is generic on purpose: it classifies what kind of action a call is, not the domain of the task, so the same harness works on any repo Bob is pointed at.</p>
+<p>We ran it for real: Bob reviewed a sample file, made one tool call (<code>read_file</code>), correctly classified as no-risk, hash chain verified clean, and Bob's own review text passed the filter as CLEAN with 0% filler in that run. Task ID and exact numbers are in the repo.</p>
+<p>Impact: this turns "the AI said it worked" into something with a paper trail &mdash; a small, cheap step toward AI-assisted code review a team can actually rely on.</p>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Links</div>
+    <div class="links">
+      <a href="https://bobsprint.sipa-os.org" target="_blank">Demo &rarr; bobsprint.sipa-os.org</a>
+      <a href="https://github.com/soulinpsyabstract/sipa-bob-sprint" target="_blank">Repo on GitHub</a>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="field-label">Still needed from you</div>
+    <div class="todo">
+      <strong>Slide deck</strong> &mdash; not built yet, tell me if you want a simple one now.<br><br>
+      <strong>Demo video</strong> &mdash; needs a real screen recording of Bob IDE running (30&ndash;60s is enough: open Bob, run one task, show the Tasks screenshot, show the harness output). I can't fabricate this one &mdash; it has to be an actual capture.<br><br>
+      <strong>Cover image</strong> &mdash; say the word and I'll put one together from the demo page's palette.
+    </div>
+  </div>
+
+  <footer>IBM Bob 2.0 Hackathon &middot; sipa-bob-sprint</footer>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(btn.dataset.copy);
+      const text = el.innerText;
+      try {
+        navigator.clipboard.writeText(text).then(() => {
+          const old = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(() => { btn.textContent = old; }, 1200);
+        }).catch(() => {
+          const range = document.createRange();
+          range.selectNode(el);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+        });
+      } catch (e) {}
+    });
+  });
+</script>
